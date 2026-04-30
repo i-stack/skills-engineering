@@ -1,7 +1,7 @@
 {
-  "active_version": "v31",
+  "active_version": "v32",
   "status": "active",
-  "promoted_at": "2026-04-30T16:26:50+0800",
-  "source": "proposal:20260430-161410-batch-script-rule-hardening",
+  "promoted_at": "2026-04-30T16:55:44+0800",
+  "source": "proposal:20260430-165137-fix-v31-drift-and-script-hardening",
   "notes": "Promoted after passing base evolution validation."
 }
