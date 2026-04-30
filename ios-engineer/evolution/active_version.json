@@ -1,7 +1,7 @@
 {
-  "active_version": "v12",
+  "active_version": "v16",
   "status": "active",
-  "promoted_at": "2026-04-30T10:51:34+0800",
-  "source": "proposal:20260430-105026-retire-circular-scope-rule",
+  "promoted_at": "2026-04-30T11:27:45+0800",
+  "source": "proposal:20260430-112554-resolve-cross-file-conflicts",
   "notes": "Promoted after passing base evolution validation."
 }
