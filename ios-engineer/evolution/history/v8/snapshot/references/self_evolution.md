@@ -14,7 +14,6 @@
 - 只有在真实任务中发现当前 skill 存在规则缺失、规则冲突、规则重复、规则失效或输出失真时，才使用本文件。
 - 本文件定义的是 skill 的受控自进化流程，不是业务问题的答法模板。
 - 默认生成候选改动并验证，不直接把未验证的规则改动当作新的生效版本。
-- 任何新增或修改规则，必须说明它是在新增能力、修正表达、合并重复，还是退役旧规则；若不能说明替代关系，默认不新增。
 - 版本状态保存在 `evolution/active_version.json`；提案、验证记录、授权记录、历史快照分别存放在 `evolution/proposals/`、`evolution/validations/`、`evolution/approvals/` 和 `evolution/history/`。
 
 ## 触发信号
