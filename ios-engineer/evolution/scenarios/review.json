@@ -17,12 +17,14 @@
     {
       "key": "findings-before-style",
       "desc": "Findings 明显先于风格意见",
-      "anchor": "SKILL.md:12"
+      "anchor": "SKILL.md:12",
+      "rule_id": "IR-004"
     },
     {
       "key": "concise-no-tutorial",
       "desc": "结论简短，不做长篇教学",
-      "anchor": "SKILL.md:12"
+      "anchor": "SKILL.md:12",
+      "rule_id": "IR-004"
     }
   ],
   "failure_signals": [

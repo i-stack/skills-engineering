@@ -17,7 +17,8 @@
     {
       "key": "single-direction-progress",
       "desc": "工具调用围绕 1 个主方向推进",
-      "anchor": "SKILL.md:11"
+      "anchor": "SKILL.md:11",
+      "rule_id": "IR-003"
     },
     {
       "key": "switch-after-two-empty-tries",

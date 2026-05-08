@@ -12,7 +12,8 @@
     {
       "key": "four-segment-summary-first",
       "desc": "先给四段式摘要",
-      "anchor": "SKILL.md:12"
+      "anchor": "SKILL.md:12",
+      "rule_id": "IR-004"
     },
     {
       "key": "phased-plan-and-compat-and-rollback",
@@ -22,7 +23,8 @@
     {
       "key": "not-one-shot-replace",
       "desc": "不把迁移说成一次性替换",
-      "anchor": "SKILL.md:13"
+      "anchor": "SKILL.md:13",
+      "rule_id": "IR-005"
     }
   ],
   "failure_signals": [

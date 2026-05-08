@@ -17,12 +17,14 @@
     {
       "key": "minimal-fix-first",
       "desc": "优先最小修复，例如取消旧任务或丢弃过期结果",
-      "anchor": "SKILL.md:13"
+      "anchor": "SKILL.md:13",
+      "rule_id": "IR-005"
     },
     {
       "key": "verification-step",
       "desc": "说明验证方式",
-      "anchor": "SKILL.md:12"
+      "anchor": "SKILL.md:12",
+      "rule_id": "IR-004"
     }
   ],
   "failure_signals": [

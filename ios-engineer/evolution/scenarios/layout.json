@@ -17,12 +17,14 @@
     {
       "key": "no-full-rewrite",
       "desc": "不直接建议重写整个消息视图",
-      "anchor": "SKILL.md:13"
+      "anchor": "SKILL.md:13",
+      "rule_id": "IR-005"
     },
     {
       "key": "four-segment-output",
       "desc": "输出保持根因 / 为什么 / 修法 / 验证",
-      "anchor": "SKILL.md:12"
+      "anchor": "SKILL.md:12",
+      "rule_id": "IR-004"
     }
   ],
   "failure_signals": [
