@@ -1,7 +1,7 @@
 {
-  "active_version": "v44",
+  "active_version": "v45",
   "status": "active",
-  "promoted_at": "2026-05-08T14:29:28+0800",
-  "source": "proposal:20260508-141100-bootstrap-rule-ids",
+  "promoted_at": "2026-05-08T14:56:56+0800",
+  "source": "proposal:20260508-145208-rewrite-sym-007-as-symptom",
   "notes": "Promoted after passing base evolution validation."
 }
