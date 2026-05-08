@@ -1,7 +1,7 @@
 {
-  "active_version": "v45",
+  "active_version": "v46",
   "status": "active",
-  "promoted_at": "2026-05-08T14:56:56+0800",
-  "source": "proposal:20260508-145208-rewrite-sym-007-as-symptom",
+  "promoted_at": "2026-05-08T15:04:27+0800",
+  "source": "proposal:20260508-143545-bootstrap-usage-ledger",
   "notes": "Promoted after passing base evolution validation."
 }
