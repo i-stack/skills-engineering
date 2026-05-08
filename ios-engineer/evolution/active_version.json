@@ -1,7 +1,7 @@
 {
-  "active_version": "v47",
+  "active_version": "v48",
   "status": "active",
-  "promoted_at": "2026-05-08T15:24:19+0800",
-  "source": "proposal:20260508-151354-bootstrap-summarize-usage-ledger",
+  "promoted_at": "2026-05-08T15:46:52+0800",
+  "source": "proposal:20260508-154338-retire-route-019-merge-into-018",
   "notes": "Promoted after passing base evolution validation."
 }
