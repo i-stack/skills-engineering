@@ -67,6 +67,18 @@ SKILL_NAME=ios-engineer ./scripts/sync-skills.sh --dry-run
 
 - `ios-engineer/scripts/`
 
+## 提交守卫
+
+`.githooks/pre-commit` 会拦截未绑定 evolution proposal 的 `ios-engineer/SKILL.md` 与 `ios-engineer/references/*.md` 改动。每个克隆仓库的协作者必须执行一次：
+
+```bash
+bash scripts/install-hooks.sh
+```
+
+该脚本把 `core.hooksPath` 指向 `.githooks/`，并对 `.githooks/*` 置位 `+x`。安装后，任何对 SKILL.md 或 references 的改动若未在同 commit 中包含 `ios-engineer/evolution/proposals/<id>.md`、且对应 `ios-engineer/evolution/approvals/<id>.json` 不在 staged 或历史中，commit 会被直接拒绝。
+
+紧急绕过通道：`SKILL_BYPASS=1 git commit ...`，仅限确实无法走 evolution 流程的紧急修复，且必须在 commit message 中显式说明绕过原因。
+
 ## 开发建议
 
 - 提交前优先执行 `./scripts/sync-skills.sh --dry-run` 检查同步结果。
