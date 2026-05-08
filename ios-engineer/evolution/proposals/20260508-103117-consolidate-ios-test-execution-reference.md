@@ -52,4 +52,4 @@
   - 尚未运行自动演化校验脚本；本提案目前保持 `draft`，后续可补跑 `validate_skill_evolution.sh` 和 `validate_skill_proposal.sh` 后再推进状态。
 
 ## 状态
-- draft
+- promoted
