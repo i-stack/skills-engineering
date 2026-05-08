@@ -1,7 +1,7 @@
 {
-  "active_version": "v48",
+  "active_version": "v49",
   "status": "active",
-  "promoted_at": "2026-05-08T15:46:52+0800",
-  "source": "proposal:20260508-154338-retire-route-019-merge-into-018",
+  "promoted_at": "2026-05-08T15:53:22+0800",
+  "source": "proposal:20260508-155152-retire-ir-009-meta-ir",
   "notes": "Promoted after passing base evolution validation."
 }
