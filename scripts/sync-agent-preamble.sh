@@ -54,6 +54,11 @@ Environment variables:
   CURSOR_PROJECT_ROOTS   Colon-separated project roots, e.g.
                          /path/to/projA:/path/to/projB
                          Writes to <root>/.cursor/rules/ios-engineer.mdc
+
+Sync target gating (per-tool; values: 1=force on, 0=force off, unset=auto-detect
+via ~/.claude, ~/.codex existence):
+  SYNC_CLAUDE            Enable Claude preamble rewrite
+  SYNC_CODEX             Enable Codex preamble rewrite
 EOF
 }
 
@@ -70,6 +75,21 @@ if [[ ! -f "${TEMPLATE}" ]]; then
   echo "Template not found: ${TEMPLATE}" >&2
   exit 1
 fi
+
+# Mirror sync-skills.sh gating: 1=force on, 0=force off, unset=auto-detect.
+sync_enabled() {
+  local flag="$1"
+  local root_dir="$2"
+  case "${flag}" in
+    1|true|yes|on)  return 0 ;;
+    0|false|no|off) return 1 ;;
+    "")             [[ -d "${root_dir}" ]] ;;
+    *)
+      echo "Invalid SYNC_* flag value: '${flag}'" >&2
+      return 1
+      ;;
+  esac
+}
 
 render() {
   local tool_name="$1"
@@ -141,8 +161,20 @@ sync_target() {
   rm -f "${rendered}" "${new_content}"
 }
 
-sync_target "${CLAUDE_TARGET}" "claude-code" "~/.claude/skills/ios-engineer/"
-sync_target "${CODEX_TARGET}"  "codex"       "~/.codex/skills/ios-engineer/"
+if sync_enabled "${SYNC_CLAUDE:-}" "${HOME}/.claude"; then
+  sync_target "${CLAUDE_TARGET}" "claude-code" "~/.claude/skills/ios-engineer/"
+elif [[ -n "${SYNC_CLAUDE:-}" ]]; then
+  echo "Skip Claude preamble: disabled via SYNC_CLAUDE=${SYNC_CLAUDE}."
+else
+  echo "Skip Claude preamble: ${HOME}/.claude not found (set SYNC_CLAUDE=1 to force)."
+fi
+if sync_enabled "${SYNC_CODEX:-}" "${HOME}/.codex"; then
+  sync_target "${CODEX_TARGET}" "codex" "~/.codex/skills/ios-engineer/"
+elif [[ -n "${SYNC_CODEX:-}" ]]; then
+  echo "Skip Codex preamble: disabled via SYNC_CODEX=${SYNC_CODEX}."
+else
+  echo "Skip Codex preamble: ${HOME}/.codex not found (set SYNC_CODEX=1 to force)."
+fi
 
 if [[ -n "${CURSOR_PROJECT_ROOTS}" ]]; then
   IFS=':' read -ra _cursor_roots <<< "${CURSOR_PROJECT_ROOTS}"

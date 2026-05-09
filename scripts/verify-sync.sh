@@ -20,6 +20,21 @@ note_fail() {
   FAIL=1
 }
 
+# Mirror sync-skills.sh gating: 1=force on, 0=force off, unset=auto-detect.
+sync_enabled() {
+  local flag="$1"
+  local root_dir="$2"
+  case "${flag}" in
+    1|true|yes|on)  return 0 ;;
+    0|false|no|off) return 1 ;;
+    "")             [[ -d "${root_dir}" ]] ;;
+    *)
+      echo "Invalid SYNC_* flag value: '${flag}'" >&2
+      return 1
+      ;;
+  esac
+}
+
 check_skill_dir() {
   local dir="$1"
   if [[ ! -d "$dir" ]]; then
@@ -46,13 +61,39 @@ check_preamble_tilde() {
   fi
 }
 
-check_skill_dir "$CLAUDE_SKILL"
-check_skill_dir "$CODEX_SKILL"
-check_skill_dir "$CURSOR_SKILL"
-check_preamble_tilde "$CLAUDE_PREAMBLE"
-check_preamble_tilde "$CODEX_PREAMBLE"
+CHECKED=0
+if sync_enabled "${SYNC_CLAUDE:-}" "${HOME}/.claude"; then
+  check_skill_dir "$CLAUDE_SKILL"
+  check_preamble_tilde "$CLAUDE_PREAMBLE"
+  CHECKED=$((CHECKED + 1))
+elif [[ -n "${SYNC_CLAUDE:-}" ]]; then
+  echo "Skip Claude verify: disabled via SYNC_CLAUDE=${SYNC_CLAUDE}."
+else
+  echo "Skip Claude verify: ${HOME}/.claude not found (set SYNC_CLAUDE=1 to force)."
+fi
+if sync_enabled "${SYNC_CODEX:-}" "${HOME}/.codex"; then
+  check_skill_dir "$CODEX_SKILL"
+  check_preamble_tilde "$CODEX_PREAMBLE"
+  CHECKED=$((CHECKED + 1))
+elif [[ -n "${SYNC_CODEX:-}" ]]; then
+  echo "Skip Codex verify: disabled via SYNC_CODEX=${SYNC_CODEX}."
+else
+  echo "Skip Codex verify: ${HOME}/.codex not found (set SYNC_CODEX=1 to force)."
+fi
+if sync_enabled "${SYNC_CURSOR:-}" "${HOME}/.cursor"; then
+  check_skill_dir "$CURSOR_SKILL"
+  CHECKED=$((CHECKED + 1))
+elif [[ -n "${SYNC_CURSOR:-}" ]]; then
+  echo "Skip Cursor verify: disabled via SYNC_CURSOR=${SYNC_CURSOR}."
+else
+  echo "Skip Cursor verify: ${HOME}/.cursor not found (set SYNC_CURSOR=1 to force)."
+fi
 
 if [[ $FAIL -eq 0 ]]; then
-  echo "OK: three-way skill caches clean (SKILL.md + references/ only); preambles tilde-ified"
+  if [[ $CHECKED -eq 0 ]]; then
+    echo "OK: no sync targets enabled; nothing to verify."
+  else
+    echo "OK: ${CHECKED} target(s) clean (SKILL.md + references/ only); preambles tilde-ified"
+  fi
 fi
 exit $FAIL
