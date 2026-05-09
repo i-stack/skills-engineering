@@ -1,7 +1,7 @@
 {
-  "active_version": "v60",
+  "active_version": "v62",
   "status": "active",
-  "promoted_at": "2026-05-08T18:41:41+0800",
-  "source": "proposal:20260508-183956-assert-threshold-doc-script-sync",
+  "promoted_at": "2026-05-09T10:46:10+0800",
+  "source": "proposal:20260509-104012-route-add-trigger-skip-anchors-per-route",
   "notes": "Promoted after passing base evolution validation."
 }

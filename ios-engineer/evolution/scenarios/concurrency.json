@@ -25,6 +25,12 @@
       "desc": "说明验证方式",
       "anchor": "SKILL.md:12",
       "rule_id": "IR-004"
+    },
+    {
+      "key": "version-premise-declared",
+      "desc": "输出在「结论」段之前含独立的「版本前提」块（按 examples.md §4 模板），写出真值或显式假设",
+      "anchor": "SKILL.md:14",
+      "rule_id": "IR-006"
     }
   ],
   "failure_signals": [
@@ -39,6 +45,16 @@
     {
       "key": "no-cancellation-chain",
       "desc": "不提取消链路"
+    },
+    {
+      "key": "no-version-premise",
+      "desc": "给出并发 / 可用性 API / SwiftUI 行为建议但既无真值也无显式假设，隐性使用某个 iOS / Swift 版本的 API",
+      "rule_id": "IR-006"
+    },
+    {
+      "key": "version-premise-inline-only",
+      "desc": "未把版本前提作为独立块字面输出，仅在散文里隐含",
+      "rule_id": "IR-006"
     }
   ],
   "scoring": {
