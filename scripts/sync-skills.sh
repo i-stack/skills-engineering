@@ -5,12 +5,22 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 
+LOCAL_CONFIG="${SCRIPT_DIR}/config.local.sh"
+if [[ -f "${LOCAL_CONFIG}" ]]; then
+  # shellcheck disable=SC1090
+  source "${LOCAL_CONFIG}"
+fi
+
 SKILL_NAME="${SKILL_NAME:-ios-engineer}"
 SOURCE_DIR="${SOURCE_DIR:-${REPO_ROOT}/${SKILL_NAME}}"
 
 CODEX_DEST_BASE="${CODEX_DEST_BASE:-${HOME}/.codex/skills}"
 CLAUDE_DEST_BASE="${CLAUDE_DEST_BASE:-${HOME}/.claude/skills}"
 CURSOR_DEST_BASE="${CURSOR_DEST_BASE:-${HOME}/.cursor/skills}"
+
+CLAUDE_ROOT="${HOME}/.claude"
+CODEX_ROOT="${HOME}/.codex"
+CURSOR_ROOT="${HOME}/.cursor"
 
 WATCH_MODE=false
 DRY_RUN=false
@@ -31,6 +41,12 @@ Environment variables:
   CODEX_DEST_BASE  Default: ~/.codex/skills
   CLAUDE_DEST_BASE Default: ~/.claude/skills
   CURSOR_DEST_BASE Default: ~/.cursor/skills
+
+Sync target gating (per-tool; values: 1=force on, 0=force off, unset=auto-detect
+via ~/.claude, ~/.codex, ~/.cursor existence):
+  SYNC_CLAUDE      Enable Claude sync
+  SYNC_CODEX       Enable Codex sync
+  SYNC_CURSOR      Enable Cursor sync
 EOF
 }
 
@@ -60,11 +76,50 @@ if [[ ! -d "${SOURCE_DIR}" ]]; then
   exit 1
 fi
 
-TARGETS=(
-  "${CODEX_DEST_BASE}/${SKILL_NAME}"
-  "${CLAUDE_DEST_BASE}/${SKILL_NAME}"
-  "${CURSOR_DEST_BASE}/${SKILL_NAME}"
-)
+# Decide whether a given tool's sync should run.
+# $1: value of SYNC_* env var (possibly empty)
+# $2: tool root dir (e.g. $HOME/.claude) — probed when flag is unset
+sync_enabled() {
+  local flag="$1"
+  local root_dir="$2"
+  case "${flag}" in
+    1|true|yes|on)  return 0 ;;
+    0|false|no|off) return 1 ;;
+    "")             [[ -d "${root_dir}" ]] ;;
+    *)
+      echo "Invalid SYNC_* flag value: '${flag}' (expected 1/0/true/false/yes/no/on/off)" >&2
+      return 1
+      ;;
+  esac
+}
+
+TARGETS=()
+if sync_enabled "${SYNC_CLAUDE:-}" "${CLAUDE_ROOT}"; then
+  TARGETS+=("${CLAUDE_DEST_BASE}/${SKILL_NAME}")
+elif [[ -n "${SYNC_CLAUDE:-}" ]]; then
+  echo "Skip Claude sync: disabled via SYNC_CLAUDE=${SYNC_CLAUDE}."
+else
+  echo "Skip Claude sync: ${CLAUDE_ROOT} not found (set SYNC_CLAUDE=1 to force)."
+fi
+if sync_enabled "${SYNC_CODEX:-}" "${CODEX_ROOT}"; then
+  TARGETS+=("${CODEX_DEST_BASE}/${SKILL_NAME}")
+elif [[ -n "${SYNC_CODEX:-}" ]]; then
+  echo "Skip Codex sync: disabled via SYNC_CODEX=${SYNC_CODEX}."
+else
+  echo "Skip Codex sync: ${CODEX_ROOT} not found (set SYNC_CODEX=1 to force)."
+fi
+if sync_enabled "${SYNC_CURSOR:-}" "${CURSOR_ROOT}"; then
+  TARGETS+=("${CURSOR_DEST_BASE}/${SKILL_NAME}")
+elif [[ -n "${SYNC_CURSOR:-}" ]]; then
+  echo "Skip Cursor sync: disabled via SYNC_CURSOR=${SYNC_CURSOR}."
+else
+  echo "Skip Cursor sync: ${CURSOR_ROOT} not found (set SYNC_CURSOR=1 to force)."
+fi
+
+if [[ ${#TARGETS[@]} -eq 0 ]]; then
+  echo "No sync targets enabled; nothing to do."
+  exit 0
+fi
 
 ensure_target_parent() {
   local target="$1"
@@ -84,7 +139,10 @@ sync_one() {
   ensure_target_parent "${target}"
   ensure_real_dir_target "${target}"
 
-  local rsync_flags=(-a --delete --exclude ".DS_Store" --exclude ".git/")
+  local rsync_flags=(-a --delete --delete-excluded \
+    --include "/SKILL.md" \
+    --include "/references/" --include "/references/**" \
+    --exclude "*")
   if [[ "${DRY_RUN}" == "true" ]]; then
     rsync_flags+=(--dry-run --itemize-changes)
   fi
