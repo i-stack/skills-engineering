@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+# Pre-push hook: run scripts/sync-skills.sh once before the push proceeds, so
+# the local ~/.claude, ~/.codex, ~/.cursor skill copies are in lockstep with
+# what is being published to the remote. This prevents agents from loading a
+# stale SKILL while the repo has already moved on.
+#
+# Bypass: set SKILL_BYPASS=1 in the environment for emergencies.
+
+set -uo pipefail
+
+if [ "${SKILL_BYPASS:-0}" = "1" ]; then
+  exit 0
+fi
+
+ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
+SYNC_SCRIPT="${ROOT_DIR}/scripts/sync-skills.sh"
+
+if [ ! -x "${SYNC_SCRIPT}" ]; then
+  echo "skill-sync pre-push: ${SYNC_SCRIPT} missing or not executable." >&2
+  echo "Set SKILL_BYPASS=1 to bypass (emergencies only)." >&2
+  exit 1
+fi
+
+echo "skill-sync pre-push: syncing ${ROOT_DIR} skills to local agent caches..."
+if ! "${SYNC_SCRIPT}"; then
+  echo "skill-sync pre-push: sync-skills.sh failed; push aborted." >&2
+  echo "Fix the sync error, or set SKILL_BYPASS=1 to bypass (emergencies only)." >&2
+  exit 1
+fi
+
+exit 0
