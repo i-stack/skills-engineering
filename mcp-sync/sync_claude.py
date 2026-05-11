@@ -17,11 +17,6 @@ CLAUDE_JSON = Path.home() / ".claude.json"
 XCODE_CLAUDE_JSON = Path.home() / "Library/Developer/Xcode/CodingAssistant/ClaudeAgentConfig/.claude.json"
 
 
-def merge_mcp_servers_dict(existing: dict, servers: dict) -> dict:
-    """Same keys from mcp-servers.json overwrite; other keys in existing stay."""
-    return {**existing, **servers}
-
-
 def merge_xcode_claude_json(servers: dict) -> None:
     """Xcode-only Claude Agent config: MCP is stored per project path under \"projects\"."""
     path = XCODE_CLAUDE_JSON
@@ -36,14 +31,14 @@ def merge_xcode_claude_json(servers: dict) -> None:
     if isinstance(projects, dict) and projects:
         for proj in projects.values():
             if isinstance(proj, dict):
-                proj["mcpServers"] = merge_mcp_servers_dict(proj.get("mcpServers") or {}, servers)
+                proj["mcpServers"] = dict(servers)
     else:
-        data["mcpServers"] = merge_mcp_servers_dict(data.get("mcpServers") or {}, servers)
+        data["mcpServers"] = dict(servers)
 
     path.write_text(json.dumps(data, indent=2, ensure_ascii=False), encoding="utf-8")
     print(
         f"Updated MCP servers in {path} "
-        f"({'per-project' if isinstance(projects, dict) and projects else 'root'} merge)."
+        f"({'per-project' if isinstance(projects, dict) and projects else 'root'} replace)."
     )
 
 
@@ -58,11 +53,11 @@ def main():
     else:
         data = {}
 
-    data["mcpServers"] = merge_mcp_servers_dict(data.get("mcpServers") or {}, servers)
+    data["mcpServers"] = dict(servers)
 
     CLAUDE_JSON.parent.mkdir(parents=True, exist_ok=True)
     CLAUDE_JSON.write_text(json.dumps(data, indent=2, ensure_ascii=False), encoding="utf-8")
-    print(f"Updated MCP servers in {CLAUDE_JSON} (merge, no overwrite of other config).")
+    print(f"Updated MCP servers in {CLAUDE_JSON} (mcpServers replaced; other top-level config preserved).")
 
     merge_xcode_claude_json(servers)
 
