@@ -1,7 +1,7 @@
 {
-  "active_version": "v65",
+  "active_version": "v66",
   "status": "active",
-  "promoted_at": "2026-05-09T10:58:54+0800",
-  "source": "proposal:20260509-105635-ref-last-verified-metadata-and-audit-script",
+  "promoted_at": "2026-05-11T16:16:46+0800",
+  "source": "proposal:20260511-161346-add-mcp-priority-mapping-to-mcp-control",
   "notes": "Promoted after passing base evolution validation."
 }
