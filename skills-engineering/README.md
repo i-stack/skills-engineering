@@ -142,12 +142,12 @@ Claude / Codex 两端同样遵循 `SYNC_CLAUDE` / `SYNC_CODEX` 门控语义（`1
 可用 bootstrap 脚本克隆仓库并执行技能同步与 preamble 同步：
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/i-stack/skills-engineering/main/scripts/bootstrap.sh | bash
+curl -fsSL https://raw.githubusercontent.com/i-stack/ai-coding-kit/main/skills-engineering/scripts/bootstrap.sh | bash
 ```
 
 常用环境变量：
 
-- `CLONE_TARGET`：仓库克隆位置，默认 `~/Desktop/github/skills-engineering`
+- `CLONE_TARGET`：仓库克隆位置，默认 `~/Desktop/github/ai-coding-kit`
 - `REF`：要检出的分支、tag 或 commit，默认 `main`
 - `SKIP_SKILLS=true`：跳过 `sync-skills.sh`
 - `SKIP_PREAMBLE=true`：跳过 `sync-agent-preamble.sh`
@@ -298,14 +298,15 @@ bash install-hooks.sh
 
 ### pre-push：推送前强制三端同步并校验
 
-[`.githooks/pre-push`](../.githooks/pre-push) 在推送前顺序执行（任一失败即中止 push）：
+[`.githooks/pre-push`](../.githooks/pre-push) 在推送前顺序执行（默认任一失败即中止 push）：
 
 1. `skills-engineering/scripts/sync-skills.sh` —— 把 `ios-engineer/` 同步到 `~/.claude`、`~/.codex`、`~/.cursor` 的 skill 缓存（按 `SYNC_*` 门控与排除规则）。
 2. `skills-engineering/scripts/sync-agent-preamble.sh` —— 重写 `~/.claude/CLAUDE.md`、`~/.codex/AGENTS.md` 和 `CURSOR_PROJECT_ROOTS` 里每个项目的 `.cursor/rules/ios-engineer.mdc` 托管块。
 3. `skills-engineering/scripts/verify-sync.sh` —— 断言三端缓存只有 `SKILL.md + references/`、preamble 托管块已 tilde 化。
 4. `mcp-sync/sync_all.sh` —— 把 MCP 配置同步到 Cursor / Codex / Claude / Xcode（来自 `mcp-sync` subtree，与本守卫并存）。
 
-任何一步失败都会 `exit 1` 并阻止 `git push`，保证远端指向的版本与本地 Agent 正在加载的版本一致。
+任何一步失败都会 `exit 1` 并阻止 `git push`，保证远端指向的版本与本地 Agent 正在加载的版本一致。  
+例外：若仅缺少本地 `mcp-sync/mcp-servers.json`，`mcp-sync/sync_all.sh` 会按“未配置本地密钥文件”处理并退出 `0`，即跳过本次 MCP 同步但不阻断 push。
 
 ### 紧急绕过
 

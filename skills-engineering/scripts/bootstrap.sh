@@ -10,13 +10,13 @@
 #                                        (and optional Cursor project rules)
 #
 # One-liner for a fresh device:
-#   curl -fsSL https://raw.githubusercontent.com/i-stack/skills-engineering/main/scripts/bootstrap.sh | bash
+#   curl -fsSL https://raw.githubusercontent.com/i-stack/ai-coding-kit/main/skills-engineering/scripts/bootstrap.sh | bash
 #
 # Environment variables:
-#   REPO_URL               Default: https://github.com/i-stack/skills-engineering.git
+#   REPO_URL               Default: https://github.com/i-stack/ai-coding-kit.git
 #   CLONE_TARGET           Clone destination. If unset and a TTY is available,
 #                          the script prompts interactively (Enter = default).
-#                          Default: ~/Desktop/github/skills-engineering
+#                          Default: ~/Desktop/github/ai-coding-kit
 #   REF                    Branch/tag/commit to check out after clone. Default: main
 #   CURSOR_PROJECT_ROOTS   Passthrough to sync-agent-preamble.sh (optional)
 #   SKIP_PREAMBLE=true     Skip sync-agent-preamble.sh
@@ -25,8 +25,8 @@
 
 set -euo pipefail
 
-REPO_URL="${REPO_URL:-https://github.com/i-stack/skills-engineering.git}"
-DEFAULT_CLONE_TARGET="${HOME}/Desktop/github/skills-engineering"
+REPO_URL="${REPO_URL:-https://github.com/i-stack/ai-coding-kit.git}"
+DEFAULT_CLONE_TARGET="${HOME}/Desktop/github/ai-coding-kit"
 REF="${REF:-main}"
 
 # CLONE_TARGET resolution:
@@ -74,7 +74,7 @@ else
   git -C "${CLONE_TARGET}" checkout "${REF}"
 fi
 
-SCRIPTS_DIR="${CLONE_TARGET}/scripts"
+SCRIPTS_DIR="${CLONE_TARGET}/skills-engineering/scripts"
 
 if [[ "${SKIP_SKILLS:-false}" != "true" ]]; then
   echo "---"

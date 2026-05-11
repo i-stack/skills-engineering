@@ -5,10 +5,10 @@
 [![Sync](https://img.shields.io/badge/sync-Cursor%20%7C%20Codex%20%7C%20Claude%20%7C%20Xcode-5856D6)](#功能概览)
 [![Bash](https://img.shields.io/badge/shell-bash-4EAA25?style=flat-square&logo=gnu-bash&logoColor=white)](https://www.gnu.org/software/bash/)
 [![Python 3](https://img.shields.io/badge/Python-3-3776AB?style=flat-square&logo=python&logoColor=white)](https://www.python.org/)
-[![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Linux-555555?style=flat-square)](https://github.com/i-stack/mcp-sync)
+[![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Linux-555555?style=flat-square)](https://github.com/i-stack/ai-coding-kit)
 [![MCP](https://img.shields.io/badge/MCP-config-663399?style=flat-square)](https://modelcontextprotocol.io/)
 
-Single-source **`mcp-servers.json`** → sync MCP servers to **Cursor** (symlink), **OpenAI Codex** & **Xcode Coding Assistant** (TOML merge), and **Claude Code** / **Xcode Claude Agent** (JSON merge). Bash + Python.
+Single-source **`mcp-servers.json`** → sync MCP servers to **Cursor** (symlink), **OpenAI Codex** & **Xcode Coding Assistant** (TOML merge), and **Claude Code** / **Xcode Claude Agent** (JSON merge).
 
 以**一份** MCP 清单同步到 Cursor、Codex（终端与 Xcode 内）、Claude Code 与 Xcode Coding Intelligence，免去多端重复维护。
 
@@ -17,7 +17,7 @@ Single-source **`mcp-servers.json`** → sync MCP servers to **Cursor** (symlink
 | 项目 | 说明 |
 |------|------|
 | 工程名 | **mcp-sync** |
-| 默认远程 | `https://github.com/i-stack/mcp-sync.git`（见下方「克隆」） |
+| 默认远程 | `https://github.com/i-stack/ai-coding-kit.git`（见下方「克隆」） |
 
 ## 功能概览
 
@@ -66,13 +66,35 @@ Single-source **`mcp-servers.json`** → sync MCP servers to **Cursor** (symlink
 ## 克隆仓库
 
 ```bash
-git clone https://github.com/i-stack/mcp-sync.git
-cd mcp-sync
+git clone https://github.com/i-stack/ai-coding-kit.git
+cd ai-coding-kit/mcp-sync
 ```
 
 克隆后若要用 **Git 钩子** 在推送前自动同步，在外层 `ai-coding-kit/` 根目录执行一次 `bash install-hooks.sh`（详见下文）。
 
 ## 快速开始
+
+### 首次使用 Checklist（推荐）
+
+```bash
+# 1) 克隆并进入目录
+git clone https://github.com/i-stack/ai-coding-kit.git
+cd ai-coding-kit/mcp-sync
+
+# 2) 复制模板并填写密钥
+cp mcp-servers.json.example mcp-servers.json
+
+# 3) 执行同步
+chmod +x sync_all.sh   # 首次
+./sync_all.sh
+
+# 4) 做一次快速自检
+ls -l ~/.cursor/mcp.json
+rg "BEGIN MCP SYNC|END MCP SYNC" ~/.codex/config.toml
+rg "\"mcpServers\"" ~/.claude.json
+```
+
+完成后重启 Cursor / Codex / Claude Code；若在 Xcode 内使用助手，建议重启 Xcode。
 
 1. 进入本仓库目录（克隆见上；本地文件夹名可自定）。
 
@@ -119,7 +141,8 @@ bash install-hooks.sh
 git push --no-verify
 ```
 
-若 `sync_all.sh` 失败（例如 Python 报错），`pre-push` 会以非零退出码结束，**本次 push 会被 Git 中止**，便于先修好本机环境再推送。
+若 `sync_all.sh` 失败（例如 Python 报错），`pre-push` 会以非零退出码结束，**本次 push 会被 Git 中止**，便于先修好本机环境再推送。  
+**例外：**若仅是本地 `mcp-servers.json` 不存在，`sync_all.sh` 会按“未配置本地密钥文件”处理并退出 `0`（不阻断 push）；此时相当于**跳过本次 MCP 同步**。
 
 ## 脚本说明
 
@@ -141,6 +164,28 @@ python3 sync_claude.py
 ```
 
 单独执行 `sync_mcp.py` 时仍会更新 **本机 Codex** 与 **Xcode Codex** 目录下的 TOML / `config.toml`；单独执行 `sync_claude.py` 会更新 **`~/.claude.json`** 与 **Xcode 内** `.claude.json`。Cursor 需自行保证 `~/.cursor/mcp.json` 指向本仓库的 `mcp-servers.json`（或直接运行 `sync_all.sh`）。
+
+## 同步后快速自检（建议）
+
+执行完 `./sync_all.sh` 后，可用下面几条命令快速确认是否生效：
+
+```bash
+# 1) Cursor：应为符号链接
+ls -l ~/.cursor/mcp.json
+
+# 2) Codex（终端）：config.toml 应含 MCP 同步标记块
+rg "BEGIN MCP SYNC|END MCP SYNC" ~/.codex/config.toml
+
+# 3) Claude（终端）：应含 mcpServers 键
+rg "\"mcpServers\"" ~/.claude.json
+```
+
+若你在 Xcode 内使用 Codex / Claude Agent，也建议额外检查：
+
+```bash
+rg "BEGIN MCP SYNC|END MCP SYNC" ~/Library/Developer/Xcode/CodingAssistant/codex/config.toml
+rg "\"mcpServers\"" ~/Library/Developer/Xcode/CodingAssistant/ClaudeAgentConfig/.claude.json
+```
 
 ## 蓝湖 MCP（可选）
 

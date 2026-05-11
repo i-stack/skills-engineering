@@ -31,7 +31,7 @@ bash install-hooks.sh
 会把 `core.hooksPath` 指向 `.githooks/`：
 
 - [`.githooks/pre-commit`](.githooks/pre-commit)：拦截 `skills-engineering/ios-engineer/SKILL.md` 与 `references/*.md` 的未治理变更（必须同 commit 绑定 evolution proposal + approval）。
-- [`.githooks/pre-push`](.githooks/pre-push)：推送前依次跑 skills-engineering 同步链（`sync-skills.sh` → `sync-agent-preamble.sh` → `verify-sync.sh`），再跑 [`mcp-sync/sync_all.sh`](mcp-sync/sync_all.sh)；任一失败中止 push。
+- [`.githooks/pre-push`](.githooks/pre-push)：推送前依次跑 skills-engineering 同步链（`sync-skills.sh` → `sync-agent-preamble.sh` → `verify-sync.sh`），再跑 [`mcp-sync/sync_all.sh`](mcp-sync/sync_all.sh)；默认任一失败中止 push（例外：`mcp-sync/mcp-servers.json` 缺失时，`sync_all.sh` 会跳过并退出 `0`，不阻断 push）。
 
 紧急绕过：
 
