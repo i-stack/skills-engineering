@@ -1,6 +1,24 @@
 # mcp-sync
 
-**MCP 配置同步**：用**一份** `mcp-servers.json`（本仓库中的 MCP 服务清单）作为数据源，**同时**同步到 **Cursor**、**Codex**、**Claude Code**，以及 **Xcode 内置** Coding Assistant（Intelligence 里的 Codex / Claude Agent），避免在多个工具里重复维护 MCP 列表。
+Single-source **`mcp-servers.json`** → sync MCP servers to **Cursor** (symlink), **OpenAI Codex** & **Xcode Coding Assistant** (TOML merge), and **Claude Code** / **Xcode Claude Agent** (JSON merge). Bash + Python.
+
+以**一份** MCP 清单同步到 Cursor、Codex（终端与 Xcode 内）、Claude Code 与 Xcode Coding Intelligence，免去多端重复维护。
+
+[![GitHub Repo](https://img.shields.io/badge/repo-i--stack%2Fmcp--sync-181717?style=flat-square&logo=github)](https://github.com/i-stack/mcp-sync)
+[![GitHub Stars](https://img.shields.io/github/stars/i-stack/mcp-sync?style=flat-square&logo=github&label=stars)](https://github.com/i-stack/mcp-sync/stargazers)
+[![Last Commit](https://img.shields.io/github/last-commit/i-stack/mcp-sync?style=flat-square&logo=github&label=commit)](https://github.com/i-stack/mcp-sync/commits)
+
+[![Bash](https://img.shields.io/badge/shell-bash-4EAA25?style=flat-square&logo=gnu-bash&logoColor=white)](https://www.gnu.org/software/bash/)
+[![Python 3](https://img.shields.io/badge/Python-3-3776AB?style=flat-square&logo=python&logoColor=white)](https://www.python.org/)
+[![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Linux-555555?style=flat-square)](https://github.com/i-stack/mcp-sync)
+[![MCP](https://img.shields.io/badge/MCP-config-663399?style=flat-square)](https://modelcontextprotocol.io/)
+
+[![Cursor](https://img.shields.io/badge/Cursor-mcp.json%20%E2%86%92%20%E4%BB%93%E5%BA%93-24292f?style=flat-square&logo=cursor&logoColor=white)](https://cursor.com)
+[![Codex](https://img.shields.io/badge/Codex-%E7%BB%88%E7%AB%AF%20%C2%B7%20Xcode-10A37F?style=flat-square)](https://developers.openai.com/codex/)
+[![Claude Code](https://img.shields.io/badge/Claude_Code-%E5%90%88%E5%B9%B6%20.claude.json-cc785c?style=flat-square)](https://www.anthropic.com/claude-code)
+[![Xcode](https://img.shields.io/badge/Xcode-Coding%20Intelligence-147EFB?style=flat-square&logo=xcode&logoColor=white)](https://developer.apple.com/documentation/Xcode/setting-up-coding-intelligence)
+
+**MCP 配置同步**：数据源为本仓库中的 `mcp-servers.json`（可由 `mcp-servers.json.example` 复制）；脚本负责 Cursor 符号链接、Codex TOML 合并、Claude JSON 合并及 Xcode Coding Assistant 相关路径（详见下方表格）。可选 Git 钩子：推送前自动执行 `sync_all.sh`。
 
 | 项目 | 说明 |
 |------|------|
@@ -58,6 +76,8 @@ git clone https://github.com/i-stack/mcp-sync.git
 cd mcp-sync
 ```
 
+克隆后若要用 **Git 钩子** 在推送前自动同步，在本仓库根目录执行一次 `./install-hooks.sh`（详见下文）。
+
 ## 快速开始
 
 1. 进入本仓库目录（克隆见上；本地文件夹名可自定）。
@@ -79,7 +99,32 @@ cd mcp-sync
    ./sync_all.sh
    ```
 
-4. 重启或重新加载 **Cursor / Codex / Claude Code**（若当前会话未自动读取新配置）。若在 **Xcode** 中使用 Coding Assistant，建议**重启 Xcode** 后再试。
+4. （可选）启用 **`pre-push` 钩子**：希望每次 `git push` 前先跑一遍同步时，执行 `./install-hooks.sh`。说明见下一节。
+
+5. 重启或重新加载 **Cursor / Codex / Claude Code**（若当前会话未自动读取新配置）。若在 **Xcode** 中使用 Coding Assistant，建议**重启 Xcode** 后再试。
+
+## Git 钩子（可选）
+
+本仓库提供 **`githooks/pre-push`**：在你执行 `git push` 并把对象发往远程**之前**调用 `sync_all.sh`，从而在推送前把 Cursor / Codex / Claude 一侧的配置与本仓库对齐。
+
+**说明：** Git 客户端只有与 push 相关的 **`pre-push`**，没有官方的 **`post-push`**（无法在「远端已接收完毕」后再用本地钩子跑脚本；若需要那种时机，只能用远端 bare 仓库的 `post-receive`、CI 等）。
+
+**启用（每个克隆只做一次）：**
+
+```bash
+chmod +x install-hooks.sh sync_all.sh   # 若尚未可执行
+./install-hooks.sh
+```
+
+该脚本会将本仓库的 `core.hooksPath` 设为 `githooks`（路径相对于仓库根目录，可随仓库提交），并为 `githooks/pre-push` 加上可执行权限。
+
+**跳过单次钩子（仍会执行 push）：**
+
+```bash
+git push --no-verify
+```
+
+若 `sync_all.sh` 失败（例如 Python 报错），`pre-push` 会以非零退出码结束，**本次 push 会被 Git 中止**，便于先修好本机环境再推送。
 
 ## 脚本说明
 
@@ -88,6 +133,8 @@ cd mcp-sync
 | `sync_all.sh` | 一键：Cursor 软链 → `sync_mcp.py`（含 Xcode `codex` 目录）→ `sync_claude.py`（含 Xcode `ClaudeAgentConfig`） |
 | `sync_mcp.py` | 生成 Codex 用 TOML，并合并进 `~/.codex/config.toml` 与 **`~/Library/Developer/Xcode/CodingAssistant/codex/config.toml`** |
 | `sync_claude.py` | 将 `mcpServers` 合并进 `~/.claude.json` 与 **`~/Library/Developer/Xcode/CodingAssistant/ClaudeAgentConfig/.claude.json`**（Xcode 侧为按工程 `projects.*.mcpServers` 合并） |
+| `install-hooks.sh` | 设置 `core.hooksPath=githooks`，保证 `githooks/pre-push` 可执行 |
+| `githooks/pre-push` | 在 `git push` 发送前执行 `sync_all.sh`（需先运行 `install-hooks.sh`） |
 | `mcp-servers.json` | **唯一数据源**（本地文件，已加入 `.gitignore`） |
 | `mcp-servers.json.example` | 无密钥的模板，可安全提交到 Git |
 
