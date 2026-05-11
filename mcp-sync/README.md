@@ -3,20 +3,14 @@
 [![Config](https://img.shields.io/badge/config-mcp--servers.json-663399)](mcp-servers.json.example)
 ![Tool](https://img.shields.io/badge/tool-mcp--sync-24292f)
 [![Sync](https://img.shields.io/badge/sync-Cursor%20%7C%20Codex%20%7C%20Claude%20%7C%20Xcode-5856D6)](#功能概览)
-
-Single-source **`mcp-servers.json`** → sync MCP servers to **Cursor** (symlink), **OpenAI Codex** & **Xcode Coding Assistant** (TOML merge), and **Claude Code** / **Xcode Claude Agent** (JSON merge). Bash + Python.
-
-以**一份** MCP 清单同步到 Cursor、Codex（终端与 Xcode 内）、Claude Code 与 Xcode Coding Intelligence，免去多端重复维护。
-
 [![Bash](https://img.shields.io/badge/shell-bash-4EAA25?style=flat-square&logo=gnu-bash&logoColor=white)](https://www.gnu.org/software/bash/)
 [![Python 3](https://img.shields.io/badge/Python-3-3776AB?style=flat-square&logo=python&logoColor=white)](https://www.python.org/)
 [![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Linux-555555?style=flat-square)](https://github.com/i-stack/mcp-sync)
 [![MCP](https://img.shields.io/badge/MCP-config-663399?style=flat-square)](https://modelcontextprotocol.io/)
 
-[![Cursor](https://img.shields.io/badge/Cursor-mcp.json%20%E2%86%92%20%E4%BB%93%E5%BA%93-24292f?style=flat-square&logo=cursor&logoColor=white)](https://cursor.com)
-[![Codex](https://img.shields.io/badge/Codex-%E7%BB%88%E7%AB%AF%20%C2%B7%20Xcode-10A37F?style=flat-square)](https://developers.openai.com/codex/)
-[![Claude Code](https://img.shields.io/badge/Claude_Code-%E5%90%88%E5%B9%B6%20.claude.json-cc785c?style=flat-square)](https://www.anthropic.com/claude-code)
-[![Xcode](https://img.shields.io/badge/Xcode-Coding%20Intelligence-147EFB?style=flat-square&logo=xcode&logoColor=white)](https://developer.apple.com/documentation/Xcode/setting-up-coding-intelligence)
+Single-source **`mcp-servers.json`** → sync MCP servers to **Cursor** (symlink), **OpenAI Codex** & **Xcode Coding Assistant** (TOML merge), and **Claude Code** / **Xcode Claude Agent** (JSON merge). Bash + Python.
+
+以**一份** MCP 清单同步到 Cursor、Codex（终端与 Xcode 内）、Claude Code 与 Xcode Coding Intelligence，免去多端重复维护。
 
 **MCP 配置同步**：数据源为本仓库中的 `mcp-servers.json`（可由 `mcp-servers.json.example` 复制）；脚本负责 Cursor 符号链接、Codex TOML 合并、Claude JSON 合并及 Xcode Coding Assistant 相关路径（详见下方表格）。可选 Git 钩子：推送前自动执行 `sync_all.sh`。
 
