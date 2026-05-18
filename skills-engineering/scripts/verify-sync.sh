@@ -15,6 +15,7 @@ XCODE_CODEX_SKILL="${HOME}/Library/Developer/Xcode/CodingAssistant/codex/skills/
 XCODE_CLAUDE_SKILL="${HOME}/Library/Developer/Xcode/CodingAssistant/ClaudeAgentConfig/skills/${SKILL_NAME}"
 CLAUDE_PREAMBLE="${HOME}/.claude/CLAUDE.md"
 CODEX_PREAMBLE="${HOME}/.codex/AGENTS.md"
+XCODE_CODEX_PREAMBLE="${HOME}/Library/Developer/Xcode/CodingAssistant/codex/AGENTS.md"
 XCODE_CLAUDE_PREAMBLE="${HOME}/Library/Developer/Xcode/CodingAssistant/ClaudeAgentConfig/CLAUDE.md"
 
 FAIL=0
@@ -93,6 +94,7 @@ else
 fi
 if sync_enabled "${SYNC_XCODE_CODEX:-}" "${HOME}/Library/Developer/Xcode/CodingAssistant/codex"; then
   check_skill_dir "$XCODE_CODEX_SKILL"
+  check_preamble_tilde "$XCODE_CODEX_PREAMBLE"
   CHECKED=$((CHECKED + 1))
 elif [[ -n "${SYNC_XCODE_CODEX:-}" ]]; then
   echo "Skip Xcode Codex verify: disabled via SYNC_XCODE_CODEX=${SYNC_XCODE_CODEX}."
