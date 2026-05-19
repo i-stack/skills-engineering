@@ -19,6 +19,7 @@
 - 主技能：`ios-engineer`
 - Active 版本：见 `ios-engineer/evolution/active_version.json`
 - 技能入口：`ios-engineer/SKILL.md`
+- 认知对手模式：`ios-engineer/SKILL.md` 顶部全局强制；详规 `ios-engineer/references/cognitive_adversary_mode.md`
 - 规则索引：`ios-engineer/references/rule_index.md`
 - 使用观测：`ios-engineer/references/usage_ledger.md` 与 `ios-engineer/evolution/usage/usage.jsonl`
 - 回归场景：`ios-engineer/evolution/scenarios/*.json`
@@ -45,7 +46,7 @@
 
 关键目录：
 
-- `ios-engineer/references/`：按主题拆分的技能规则与参考材料，例如并发、布局、网络、性能、审查、迁移、测试、可观测性和自进化治理。
+- `ios-engineer/references/`：按主题拆分的技能规则与参考材料，例如认知对手模式、并发、布局、网络、性能、审查、迁移、测试、可观测性和自进化治理。
 - `ios-engineer/scripts/`：技能演进、校验、提案、验证、晋升、回滚、usage ledger 写入与汇总脚本。
 - `ios-engineer/evolution/`：技能演进数据，包括 `proposals/`、`validations/`、`approvals/`、`history/`、`scenarios/`、`usage/`。
 - `scripts/`：仓库级脚本，负责同步技能、同步 Agent preamble 与同步结果校验；本地机器专属配置放在 `scripts/config.local.sh`（模板为 `scripts/config.local.sh.example`），路径由仓库根 `.gitignore` 排除，会被 sync 脚本自动 source。
@@ -148,6 +149,8 @@ SYNC_CLAUDE=0 SYNC_CODEX=0 SYNC_CURSOR=0 SYNC_XCODE_CODEX=0 SYNC_XCODE_CLAUDE=1 
 ```bash
 ./scripts/sync-agent-preamble.sh
 ```
+
+托管块包含一个轻量的全局认知校准段：即使当前任务不属于 iOS 工程，只要涉及技术决策、根因归因、review 最终判断、用户强烈确信，Agent 也必须优先接近真实，执行最强反驳、隐藏假设、失效条件、可证伪条件与迎合自检。iOS 工程任务会在此基础上加载完整 `ios-engineer` skill 规则。
 
 默认写入：
 

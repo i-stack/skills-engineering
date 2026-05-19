@@ -1,7 +1,7 @@
 {
-  "active_version": "v66",
+  "active_version": "v67",
   "status": "active",
-  "promoted_at": "2026-05-11T16:16:46+0800",
-  "source": "proposal:20260511-161346-add-mcp-priority-mapping-to-mcp-control",
+  "promoted_at": "2026-05-19T10:02:52+0800",
+  "source": "proposal:20260519-100156-cognitive-adversary-auditability",
   "notes": "Promoted after passing base evolution validation."
 }
