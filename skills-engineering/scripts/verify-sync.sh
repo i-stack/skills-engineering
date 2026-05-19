@@ -82,6 +82,9 @@ check_preamble_tilde() {
   if ! grep -q 'logical-reasoning/references/logical_reasoning.md' "$file"; then
     note_fail "$file missing logical-reasoning full-text load instruction"
   fi
+  if ! grep -q 'engineering-discipline/references/engineering_discipline.md' "$file"; then
+    note_fail "$file missing engineering-discipline full-text load instruction"
+  fi
 }
 
 CHECKED=0

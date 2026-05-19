@@ -3,6 +3,7 @@
 # 约定：skill 主 ref 文件须为 references/<name 连字符换下划线>.md（如 cognitive-expansion → cognitive_expansion.md）。
 skill:cognitive-expansion
 skill:logical-reasoning
+skill:engineering-discipline
 -->
 
 <!-- managed-block:ios-engineer:begin (auto-generated from scripts/templates/agent-preamble.md.tmpl — do not edit; run scripts/sync-agent-preamble.sh) -->
@@ -27,6 +28,15 @@ skill:logical-reasoning
 - `{{LOGICAL_REASONING_SKILLS_DIR}}references/logical_reasoning.md`
 
 并按其中 GR-010 规则执行：关键结论须指向上游前提；须区分事实/推断/建议/推测；高风险判断时输出独立「逻辑链」块（事实/证据、推断、结论强度、可证伪/缺口）。
+
+# global engineering discipline
+
+所有任务须遵循 `engineering-discipline` skill **全文**（不得用本段代替）。执行前必须先读取：
+
+- `{{ENGINEERING_DISCIPLINE_SKILLS_DIR}}SKILL.md`
+- `{{ENGINEERING_DISCIPLINE_SKILLS_DIR}}references/engineering_discipline.md`
+
+并按其中 GR-002/003/004/005/007/008 规则执行：描述不清时先输出前置确认块；锁定单一根因；按四段式输出；给最小修复；不格式化代码；声明已覆盖/未覆盖/残留风险。
 
 # ios-engineer skill usage
 
