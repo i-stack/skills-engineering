@@ -20,6 +20,7 @@
 - Active 版本：见 `ios-engineer/evolution/active_version.json`
 - 技能入口：`ios-engineer/SKILL.md`
 - 认知对手模式：`ios-engineer/SKILL.md` 顶部全局强制；详规 `ios-engineer/references/cognitive_adversary_mode.md`
+- 认知拓展（打破茧房）：`cognitive-expansion/` skill（与 `ios-engineer` 同构）；`sync-skills.sh` 同步全文到各端；preamble 仅声明加载路径，Cursor `.mdc` 由详规自动生成
 - 规则索引：`ios-engineer/references/rule_index.md`
 - 使用观测：`ios-engineer/references/usage_ledger.md` 与 `ios-engineer/evolution/usage/usage.jsonl`
 - 回归场景：`ios-engineer/evolution/scenarios/*.json`
@@ -29,6 +30,9 @@
 ```text
 .
 ├── README.md
+├── cognitive-expansion/
+│   ├── SKILL.md
+│   └── references/
 ├── scripts/
 │   ├── bootstrap.sh
 │   ├── sync-agent-preamble.sh
@@ -60,7 +64,7 @@
 
 - `Codex`：需要 `~/.codex/skills/ios-engineer` + `~/.codex/AGENTS.md`。前者提供 `SKILL.md + references/`，后者负责把技能路径接入 system prompt。
 - `Claude`：需要 `~/.claude/skills/ios-engineer` + `~/.claude/CLAUDE.md`。只同步 skill 目录不足以保证自动加载。
-- `Cursor`：需要 `~/.cursor/skills/ios-engineer` + `<project>/.cursor/rules/ios-engineer.mdc`。真正触发项目内自动应用的是 `.mdc` 规则文件里的 `alwaysApply: true`。
+- `Cursor`：每个 skill 需要 `~/.cursor/skills/<skill>` + 项目内 `.cursor/rules/<skill>.mdc`（`cognitive-expansion.mdc` 由 `sync-agent-preamble.sh` 从 skill 详规生成）。`alwaysApply: true` 的 `.mdc` 负责项目内自动加载。
 - `Xcode Codex`：需要 `~/Library/Developer/Xcode/CodingAssistant/codex/skills/ios-engineer` + `~/Library/Developer/Xcode/CodingAssistant/codex/AGENTS.md`。
 - `Xcode Claude`：需要 `~/Library/Developer/Xcode/CodingAssistant/ClaudeAgentConfig/skills/ios-engineer` + `~/Library/Developer/Xcode/CodingAssistant/ClaudeAgentConfig/CLAUDE.md`。
 
@@ -150,7 +154,9 @@ SYNC_CLAUDE=0 SYNC_CODEX=0 SYNC_CURSOR=0 SYNC_XCODE_CODEX=0 SYNC_XCODE_CLAUDE=1 
 ./scripts/sync-agent-preamble.sh
 ```
 
-托管块包含一个轻量的全局认知校准段：即使当前任务不属于 iOS 工程，只要涉及技术决策、根因归因、review 最终判断、用户强烈确信，Agent 也必须优先接近真实，执行最强反驳、隐藏假设、失效条件、可证伪条件与迎合自检。iOS 工程任务会在此基础上加载完整 `ios-engineer` skill 规则。
+托管块包含两段全局认知规则：（1）**认知校准**——技术决策、根因归因、review 最终判断、用户强烈确信时，优先接近真实（最强反驳、隐藏假设、可证伪条件等）；（2）**认知拓展**——每次主答后默认追加简短「认知尾注」（重框 / 盲区 / 邻域 / 带走），打破知识茧房。iOS 工程任务会在此基础上加载完整 `ios-engineer` skill 规则。
+
+`sync-skills.sh` 默认同步 `skills-engineering/` 下所有含 `SKILL.md` 的目录（含 `cognitive-expansion`）。`sync-agent-preamble.sh` 的 `sync-manifest` 中 `skill:<name>` 行用于从 skill 详规生成 Cursor `.mdc`；preamble 托管块要求 Agent **读取 skills 目录中的全文**，不得仅用摘要。
 
 默认写入：
 
@@ -352,7 +358,7 @@ bash install-hooks.sh
 [`.githooks/pre-push`](../.githooks/pre-push) 在推送前顺序执行（默认任一失败即中止 push）：
 
 1. `skills-engineering/scripts/sync-skills.sh` —— 把 `ios-engineer/` 同步到 `~/.claude`、`~/.codex`、`~/.cursor`，以及可选的 `~/Library/Developer/Xcode/CodingAssistant/codex` 和 `~/Library/Developer/Xcode/CodingAssistant/ClaudeAgentConfig` skill 缓存（按 `SYNC_*` 门控与排除规则）。
-2. `skills-engineering/scripts/sync-agent-preamble.sh` —— 重写 `~/.claude/CLAUDE.md`、`~/.codex/AGENTS.md`、`~/Library/Developer/Xcode/CodingAssistant/codex/AGENTS.md`、`~/Library/Developer/Xcode/CodingAssistant/ClaudeAgentConfig/CLAUDE.md` 和 `CURSOR_PROJECT_ROOTS` 里每个项目的 `.cursor/rules/ios-engineer.mdc` 托管块。
+2. `skills-engineering/scripts/sync-agent-preamble.sh` —— 重写各端 preamble 托管块，并按 `sync-manifest` 的 `skill:*` 生成 `.cursor/rules/*.mdc`。
 3. `skills-engineering/scripts/verify-sync.sh` —— 断言各已启用缓存只有 `SKILL.md + references/`、preamble 托管块已 tilde 化。
 4. `mcp-sync/sync_all.sh` —— 把 MCP 配置同步到 Cursor / Codex / Claude / Xcode（来自 `mcp-sync` subtree，与本守卫并存）。
 

@@ -9,8 +9,8 @@ if [ $# -lt 1 ]; then
   echo "Usage: bash scripts/lint_hit_rules.sh <transcript-file>"
   echo ""
   echo "Verifies that hit-rules declared in <usage-audit> blocks have textual anchors"
-  echo "in the surrounding response text. Covers IR-001 / IR-002 / IR-004 / IR-006 / IR-008 / GR-010 / IR-011"
-  echo "(IR-010 is deprecated — use GR-010). Other rule IDs are reported UNSUPPORTED."
+  echo "in the surrounding response text. Covers IR-001 / IR-002 / IR-004 / IR-006 / IR-008 / IR-010 / IR-011"
+  echo "(those with template-field anchors). Other rule IDs are reported UNSUPPORTED."
   echo ""
   echo "Exit 0: no FAIL (UNSUPPORTED does not fail)"
   echo "Exit 1: any FAIL or input error"
@@ -27,15 +27,6 @@ fi
 ruby - "$input" <<'RUBY'
 input_path = ARGV[0]
 text = File.read(input_path)
-
-LR_BLOCK_CHECK = ->(t) {
-  has_block = !!(t =~ /^逻辑链\s*$/m)
-  fields = ["事实/证据", "推断", "结论强度", "可证伪/缺口"].all? do |k|
-    t =~ /^#{Regexp.escape(k)}[：:]\s*\S+/m
-  end
-  inference = !!(t =~ /因为[\s\S]{0,160}所以|不确定|缺口|推测|待验证/)
-  has_block && fields && inference
-}
 
 SIGNALS = {
   "IR-001" => {
@@ -64,13 +55,16 @@ SIGNALS = {
     },
     desc: "残留风险声明 + 已覆盖/未覆盖/残留风险 三字段全部存在"
   },
-  "GR-010" => {
-    check: LR_BLOCK_CHECK,
-    desc: "独立「逻辑链」块 + 事实/证据、推断、结论强度、可证伪/缺口四字段 + 推理或不确定性标记（global logical-reasoning）"
-  },
   "IR-010" => {
-    check: LR_BLOCK_CHECK,
-    desc: "委托 GR-010（IR-010 已 deprecated，建议改用 GR-010）：独立「逻辑链」块 + 四字段 + 推理或不确定性标记"
+    check: ->(t) {
+      has_block = !!(t =~ /^逻辑链\s*$/m)
+      fields = ["事实/证据", "推断", "结论强度", "可证伪/缺口"].all? do |k|
+        t =~ /^#{Regexp.escape(k)}[：:]\s*\S+/m
+      end
+      inference = !!(t =~ /因为[\s\S]{0,160}所以|不确定|缺口|推测|待验证/)
+      has_block && fields && inference
+    },
+    desc: "独立「逻辑链」块 + 事实/证据、推断、结论强度、可证伪/缺口四字段 + 推理或不确定性标记"
   },
   "IR-011" => {
     check: ->(t) {

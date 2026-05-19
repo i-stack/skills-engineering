@@ -4,12 +4,11 @@
 ## 使用规则
 - 本文件是 [SKILL.md](../SKILL.md) 内 rule-ID 的真值索引。新增 / 修改 / 退役 ID **先改本文，再同步 SKILL.md**。
 - 自动校验脚本 [scripts/validate_rule_ids.sh](../scripts/validate_rule_ids.sh) 断言两侧 ID 集合双向一致；不一致即非零退出。
-- ID 格式：`^[A-Z]+-\d{3}$`，前缀分五类：
+- ID 格式：`^[A-Z]+-\d{3}$`，前缀分四类：
   - `IR-NNN` — 核心铁律（Iron Rule），全局生效
   - `SYM-NNN` — 症状导航表行（Symptom routing row）
   - `ROUTE-NNN` — 任务分流 bullet（Task routing entry）
   - `OUT-NNN` — 输出模板条目（Output template entry）
-  - `GR-NNN` — 全局规则（Global Rule），跨平台通用，由独立 global skill 承载；ios-engineer 任务可引用，本文件作为镜像登记点
 - ID 一旦发布不复用：退役后保留在「退役记录」节，标 `retired`，并指明替代 ID（无替代标 `retired-no-replacement`）。退役 ID 在 SKILL.md 中**不应再出现**——校验脚本会报警。
 - ID 不携带语义后缀（不写 `ROUTE-LAYOUT-001` 这种）；语义靠本表的「摘要」列传达，避免重命名/拆分时出现 ID 含义漂移。
 - 编号可有空洞（如 `IR-002` 之后跳到 `IR-007`），无强制连续约束；新增条目优先使用前缀内最大编号 +1。
@@ -26,16 +25,8 @@
 | IR-006 | active | 涉及并发 / 可用性 API / SwiftUI 行为 / 网络取消语义的输出，"结论"前必须有独立"版本前提"块（真值或显式假设），字段存在性可机械校验 | 同上 |
 | IR-007 | active | 不要格式化代码，除非明确要求 | 同上 |
 | IR-008 | active | 任何改动都必须声明「已覆盖、未覆盖、残留风险」 | 同上 |
-| IR-010 | deprecated | 逻辑性规则已迁移至 GR-010（logical-reasoning global skill）；见退役记录 | — |
+| IR-010 | active | 回复须具备可追溯逻辑链；高风险或审计命中时输出独立“逻辑链”块（事实/证据、推断、结论强度、可证伪/缺口） | 同上 |
 | IR-011 | active | 命中认知对手模式时必须输出复述/最强反驳/隐藏假设/失效条件/可证伪条件/立场翻转/迎合自检/置信度/结论 | 同上 |
-
-## 全局规则 GR-NNN
-
-GR-NNN 规则由独立 global skill 承载，跨平台通用（不限 iOS）；ios-engineer 任务可引用，本文件作为镜像登记点。
-
-| ID | Status | 摘要 | Skill 位置 |
-|----|--------|------|------------|
-| GR-010 | active | 可追溯逻辑链；高风险场景输出独立「逻辑链」块（事实/证据、推断、结论强度、可证伪/缺口） | [logical-reasoning/references/logical_reasoning.md](../../logical-reasoning/references/logical_reasoning.md) |
 
 ## 症状导航 SYM-NNN
 
@@ -109,7 +100,6 @@ GR-NNN 规则由独立 global skill 承载，跨平台通用（不限 iOS）；i
 
 | ID | Status | 退役原因 | 替代 ID | 退役提案 |
 |----|--------|----------|---------|----------|
-| IR-010 | deprecated | 逻辑性规则提取为独立 global skill `logical-reasoning`，编号迁移至 GR-010；ios-engineer usage-audit 改用 GR-010。 | GR-010 | extract-ir010-to-logical-reasoning-global-skill |
 | ROUTE-019 | retired | 与 ROUTE-018 真重复：ROUTE-019 把"Skill 验证场景"路由到 validation_scenarios.md，而 ROUTE-018 已声明"需要验证场景追加 validation_scenarios.md"。退役后"Skill 验证场景"关键词并入 ROUTE-018 主关键词集。 | ROUTE-018 | 20260508-154338-retire-route-019-merge-into-018 |
 | IR-009 | retired | 是 9 条 IR 里唯一把执行委托给 ref 的 meta-IR（"统一遵守 ios_conventions.md"），与其它 8 条具体行为指令不同层；其职能已被 ROUTE-014（"编码约定 → ios_conventions.md"）覆盖。退役后 IR 层仅保留具体行为指令，表达一致。 | ROUTE-014 | 20260508-155152-retire-ir-009-meta-ir |
 
@@ -126,6 +116,6 @@ GR-NNN 规则由独立 global skill 承载，跨平台通用（不限 iOS）；i
 | 残留风险声明（已覆盖 / 未覆盖 / 残留风险 三字段） | [SKILL.md](../SKILL.md) IR-008 | [examples.md](examples.md) 使用规则 + §1/§2/§4/§5/§6 模板末段；[review_checklists.md](review_checklists.md) §8 骨架末段；[code_templates.md](code_templates.md) 使用规则；[scripts/lint_hit_rules.sh](../scripts/lint_hit_rules.sh) SIGNALS["IR-008"] | 改 owner 字段名或字段数必须同步三份引用文件对应段；三字段必须以独立段落字面存在，不得合并进"验证"段或"验证缺口"段；新增/缩减字段须先调整 owner 再批量同步所有引用位置；anchor 字面（"残留风险声明" / "已覆盖" / "未覆盖" / "残留风险"）改名必须同步 lint_hit_rules.sh 的 SIGNALS 表 |
 | 版本前提声明（iOS / Swift 真值或显式假设） | [SKILL.md](../SKILL.md) IR-006 | [examples.md](examples.md) 使用规则 + §1/§2/§4/§5/§6 模板首段；[review_checklists.md](review_checklists.md) §8 骨架首段；[validation_scenarios.md](validation_scenarios.md) 场景 3 通过标准；[scripts/lint_hit_rules.sh](../scripts/lint_hit_rules.sh) SIGNALS["IR-006"] | 改 owner 字面（含二选一表述、触发维度集合）必须同步所有引用；新增模板必须同步插入"版本前提"块；该块作为独立段落字面存在不得合并入"结论"或"为什么"段；段标题"版本前提"是机械校验 anchor，重命名需批量同步全部引用位置（含 lint_hit_rules.sh SIGNALS 表）|
 | 前置确认块（IR-002 在信息不足时的字面化触发） | [SKILL.md](../SKILL.md) IR-002 | [root_cause_enforcement.md](root_cause_enforcement.md) §2 取证策略"前置确认问题维度"小节；[scripts/lint_hit_rules.sh](../scripts/lint_hit_rules.sh) SIGNALS["IR-002"] | 改 owner 字面（如触发条件枚举）必须同步 root_cause_enforcement.md 维度示例；新增追问维度示例由对应 ROUTE 主读 ref 承担，不写进 owner，避免 SKILL.md 维度膨胀；段标题"前置确认"是机械校验 anchor，重命名需批量同步全部引用位置（含 lint_hit_rules.sh SIGNALS 表）|
-| 逻辑性（可追溯论证 / 四层区分 / 推理可见） | [logical-reasoning/SKILL.md](../../logical-reasoning/SKILL.md) GR-010 | [logical-reasoning/references/logical_reasoning.md](../../logical-reasoning/references/logical_reasoning.md)；[scripts/lint_hit_rules.sh](../scripts/lint_hit_rules.sh) SIGNALS[“GR-010”] | 改通用规则在 logical-reasoning skill 内更新；机械锚点为独立”逻辑链”块 + 四字段 + 至少一步”因为…所以…”或”不确定/缺口”标记；它只能验证最低可审计结构，不能替代人工判断推理质量 |
+| 逻辑性（可追溯论证 / 四层区分 / 推理可见） | [SKILL.md](../SKILL.md) IR-010 | [logical_reasoning.md](logical_reasoning.md); [scripts/lint_hit_rules.sh](../scripts/lint_hit_rules.sh) SIGNALS["IR-010"] | 改 owner 字面必须同步 logical_reasoning.md 六条标准、逻辑链输出块与禁止表；机械锚点为独立“逻辑链”块 + 四字段 + 至少一步“因为…所以…”或“不确定/缺口”标记；它只能验证最低可审计结构，不能替代人工判断推理质量 |
 | 认知对手模式（反迎合 / 最强反驳 / 可证伪 / 迎合自检） | [SKILL.md](../SKILL.md) IR-011 | [cognitive_adversary_mode.md](cognitive_adversary_mode.md); [scripts/lint_hit_rules.sh](../scripts/lint_hit_rules.sh) SIGNALS["IR-011"] | 改 owner 字面必须同步 cognitive_adversary_mode.md 最终输出格式；段标题是机械校验 anchor，重命名需同步 lint_hit_rules.sh |
 | 提案候选信号阈值 | [scripts/summarize_usage_ledger.sh](../scripts/summarize_usage_ledger.sh) L69-L72（4 个 `*_THRESHOLD` 常量） | [usage_ledger.md](usage_ledger.md) 第 8 节阈值表；[scripts/validate_skill_evolution.sh](../scripts/validate_skill_evolution.sh) `[11/13]` 步 | 改任一侧必须同步另一侧；validate_skill_evolution.sh `[11/13]` 步会自动断言不一致；新增第 5 个阈值需同步更新本表 + 文档 + 校验正则 |

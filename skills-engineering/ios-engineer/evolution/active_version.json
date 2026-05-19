@@ -1,7 +1,7 @@
 {
-  "active_version": "v67",
+  "active_version": "v69",
   "status": "active",
-  "promoted_at": "2026-05-19T10:02:52+0800",
-  "source": "proposal:20260519-100156-cognitive-adversary-auditability",
-  "notes": "Promoted after passing base evolution validation."
+  "promoted_at": "2026-05-19T03:18:52+0800",
+  "source": "proposal:extract-ir010-to-logical-reasoning-global-skill",
+  "notes": "IR-010 迁移至 logical-reasoning global skill GR-010；ios-engineer 保留 stub + deprecated IR-010 标记；usage-audit 改用 GR-010。"
 }

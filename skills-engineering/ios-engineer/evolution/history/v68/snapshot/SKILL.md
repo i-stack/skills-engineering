@@ -11,7 +11,6 @@ description: iOS / Swift / SwiftUI / UIKit / Xcode / CocoaPods / SPM engineering
 
 - **何时启用**：技术决策 / 架构选型 / 根因与性能归因 / 审查类最终判断 / 用户强烈确信或显式要求「挑战我 / 不要迎合 / red team」；精简触发语见该 ref「精简触发语」节。
 - **与铁律关系**：本模式管认知校准（接近真实）；下方 IR 与 ROUTE 管工程交付；冲突时以「接近真实」为准，工程输出仍须满足 IR-004 / IR-006 / IR-008 / IR-010 等。
-- **与认知拓展分工**：未命中本模式适用场景时，主答后按 `cognitive-expansion` skill 全文执行（`skills-engineering/cognitive-expansion/references/cognitive_expansion.md`）；`【深潜】`/`【拓展】` 加深拓展，不与 Step 0–6 重复堆砌。
 
 ## 核心铁律
 - [IR-001] 始终使用简体中文。
@@ -22,6 +21,7 @@ description: iOS / Swift / SwiftUI / UIKit / Xcode / CocoaPods / SPM engineering
 - [IR-006] 涉及并发（`@MainActor` / `actor` / `Sendable` / `async let`）、可用性 API、SwiftUI 行为、网络取消语义的建议，回答里必须出现一条显式的“版本前提”声明，二选一：要么给出从工程读取的 `IPHONEOS_DEPLOYMENT_TARGET` 与 `SWIFT_VERSION` 真值（如 `iOS 15.0 / Swift 5.9`），要么以“假设 iOS ≥ N / Swift ≥ M，如不符请纠正”形式显式声明假设值。两者缺一或只给其中一项即视为违反本铁律。能读工程时优先读真值；只有在无法读取或成本过高时才允许退到显式假设。本 skill 不预设默认基线。具体落点见 [examples.md](references/examples.md) §1/§2/§4/§5/§6 模板的“版本前提”块与 [review_checklists.md](references/review_checklists.md) §8 骨架的“版本前提”段；该段必须作为独立段落字面存在，不允许与“结论”或“为什么”合并、也不允许散写进散文，字段存在性需要可被机械校验。
 - [IR-007] 不要格式化代码，除非明确要求格式化当前代码。
 - [IR-008] 任何改动都必须声明“已覆盖、未覆盖、残留风险”。
+- [IR-010] 回复必须具备可追溯的逻辑链：关键结论须能指向上游前提（事实、证据、或已陈述的推理步骤）；须区分「事实 / 推断 / 建议 / 推测」，不得把未验证推断写成定论；禁止无依据的因果跳跃、循环论证、同一回复内自相矛盾；非显然判断至少标出一步「因为…所以…」；证据不足时标明不确定，不得用流畅措辞伪装确定性。高风险判断或在 usage-audit 声明命中 IR-010 时，输出须包含独立“逻辑链”块，字段为：事实/证据、推断、结论强度、可证伪/缺口。细则见 [logical_reasoning.md](references/logical_reasoning.md)。
 - [IR-011] 命中认知对手模式适用场景时，必须输出认知校准结构：复述、最强反驳、隐藏假设、失效条件、可证伪条件、立场翻转、迎合自检、置信度、结论；不得省略最强反驳、立场翻转或迎合自检。完整触发条件、步骤与禁止行为见 [cognitive_adversary_mode.md](references/cognitive_adversary_mode.md)。
 
 ## 任务分流

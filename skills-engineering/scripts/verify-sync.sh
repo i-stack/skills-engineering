@@ -6,13 +6,9 @@
 
 set -uo pipefail
 
-SKILL_NAME="${SKILL_NAME:-ios-engineer}"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SE_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
 
-CLAUDE_SKILL="${HOME}/.claude/skills/${SKILL_NAME}"
-CODEX_SKILL="${HOME}/.codex/skills/${SKILL_NAME}"
-CURSOR_SKILL="${HOME}/.cursor/skills/${SKILL_NAME}"
-XCODE_CODEX_SKILL="${HOME}/Library/Developer/Xcode/CodingAssistant/codex/skills/${SKILL_NAME}"
-XCODE_CLAUDE_SKILL="${HOME}/Library/Developer/Xcode/CodingAssistant/ClaudeAgentConfig/skills/${SKILL_NAME}"
 CLAUDE_PREAMBLE="${HOME}/.claude/CLAUDE.md"
 CODEX_PREAMBLE="${HOME}/.codex/AGENTS.md"
 XCODE_CODEX_PREAMBLE="${HOME}/Library/Developer/Xcode/CodingAssistant/codex/AGENTS.md"
@@ -24,7 +20,15 @@ note_fail() {
   FAIL=1
 }
 
-# Mirror sync-skills.sh gating: 1=force on, 0=force off, unset=auto-detect.
+discover_skills() {
+  local d name
+  for d in "${SE_DIR}"/*/; do
+    [[ -f "${d}/SKILL.md" ]] || continue
+    name="$(basename "${d}")"
+    echo "${name}"
+  done | sort
+}
+
 sync_enabled() {
   local flag="$1"
   local root_dir="$2"
@@ -54,6 +58,15 @@ check_skill_dir() {
   done
 }
 
+check_skills_under_base() {
+  local base="$1"
+  local skill
+  while IFS= read -r skill; do
+    [[ -n "${skill}" ]] || continue
+    check_skill_dir "${base}/${skill}"
+  done < <(discover_skills)
+}
+
 check_preamble_tilde() {
   local file="$1"
   if [[ ! -f "$file" ]]; then
@@ -63,11 +76,17 @@ check_preamble_tilde() {
   if ! grep -q '^SKILL 规则位于 `~' "$file"; then
     note_fail "$file is not tilde-ified (expected: SKILL 规则位于 \`~...\`)"
   fi
+  if ! grep -q 'cognitive-expansion/references/cognitive_expansion.md' "$file"; then
+    note_fail "$file missing cognitive-expansion full-text load instruction"
+  fi
+  if ! grep -q 'logical-reasoning/references/logical_reasoning.md' "$file"; then
+    note_fail "$file missing logical-reasoning full-text load instruction"
+  fi
 }
 
 CHECKED=0
 if sync_enabled "${SYNC_CLAUDE:-}" "${HOME}/.claude"; then
-  check_skill_dir "$CLAUDE_SKILL"
+  check_skills_under_base "${HOME}/.claude/skills"
   check_preamble_tilde "$CLAUDE_PREAMBLE"
   CHECKED=$((CHECKED + 1))
 elif [[ -n "${SYNC_CLAUDE:-}" ]]; then
@@ -76,7 +95,7 @@ else
   echo "Skip Claude verify: ${HOME}/.claude not found (set SYNC_CLAUDE=1 to force)."
 fi
 if sync_enabled "${SYNC_CODEX:-}" "${HOME}/.codex"; then
-  check_skill_dir "$CODEX_SKILL"
+  check_skills_under_base "${HOME}/.codex/skills"
   check_preamble_tilde "$CODEX_PREAMBLE"
   CHECKED=$((CHECKED + 1))
 elif [[ -n "${SYNC_CODEX:-}" ]]; then
@@ -85,7 +104,7 @@ else
   echo "Skip Codex verify: ${HOME}/.codex not found (set SYNC_CODEX=1 to force)."
 fi
 if sync_enabled "${SYNC_CURSOR:-}" "${HOME}/.cursor"; then
-  check_skill_dir "$CURSOR_SKILL"
+  check_skills_under_base "${HOME}/.cursor/skills"
   CHECKED=$((CHECKED + 1))
 elif [[ -n "${SYNC_CURSOR:-}" ]]; then
   echo "Skip Cursor verify: disabled via SYNC_CURSOR=${SYNC_CURSOR}."
@@ -93,7 +112,7 @@ else
   echo "Skip Cursor verify: ${HOME}/.cursor not found (set SYNC_CURSOR=1 to force)."
 fi
 if sync_enabled "${SYNC_XCODE_CODEX:-}" "${HOME}/Library/Developer/Xcode/CodingAssistant/codex"; then
-  check_skill_dir "$XCODE_CODEX_SKILL"
+  check_skills_under_base "${HOME}/Library/Developer/Xcode/CodingAssistant/codex/skills"
   check_preamble_tilde "$XCODE_CODEX_PREAMBLE"
   CHECKED=$((CHECKED + 1))
 elif [[ -n "${SYNC_XCODE_CODEX:-}" ]]; then
@@ -102,7 +121,7 @@ else
   echo "Skip Xcode Codex verify: ${HOME}/Library/Developer/Xcode/CodingAssistant/codex not found (set SYNC_XCODE_CODEX=1 to force)."
 fi
 if sync_enabled "${SYNC_XCODE_CLAUDE:-}" "${HOME}/Library/Developer/Xcode/CodingAssistant/ClaudeAgentConfig"; then
-  check_skill_dir "$XCODE_CLAUDE_SKILL"
+  check_skills_under_base "${HOME}/Library/Developer/Xcode/CodingAssistant/ClaudeAgentConfig/skills"
   check_preamble_tilde "$XCODE_CLAUDE_PREAMBLE"
   CHECKED=$((CHECKED + 1))
 elif [[ -n "${SYNC_XCODE_CLAUDE:-}" ]]; then
@@ -115,7 +134,7 @@ if [[ $FAIL -eq 0 ]]; then
   if [[ $CHECKED -eq 0 ]]; then
     echo "OK: no sync targets enabled; nothing to verify."
   else
-    echo "OK: ${CHECKED} target(s) clean (SKILL.md + references/ only); preambles tilde-ified"
+    echo "OK: ${CHECKED} target(s) clean (all skills: SKILL.md + references/ only); preambles tilde-ified"
   fi
 fi
 exit $FAIL
